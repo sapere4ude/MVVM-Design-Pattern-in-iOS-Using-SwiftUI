@@ -7,7 +7,6 @@
 2. 새롭게 알게 된 것  
    2-1. ![Alt text](image.png)  
    NavigationLink 를 사용하면 목적지에 필요한 UI도 구성할 수 있다는 점을 새롭게 알게 됨.  
-
    2-2.
    ![Alt text](image-1.png)  
    ![Alt text](image-2.png)  
