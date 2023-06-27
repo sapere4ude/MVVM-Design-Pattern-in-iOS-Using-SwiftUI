@@ -6,32 +6,38 @@
 //
 
 import Foundation
+import Combine
 
 class MovieDetailViewModel: ViewModelBase {
     
     private var movieDetail: MovieDetail?
     private var httpClient = HTTPClient()
     
+    var cancellables = Set<AnyCancellable>()
+    
     init(movieDetail: MovieDetail? = nil) {
         self.movieDetail = movieDetail
     }
     
     func getDetailsByImdbId(imdbId: String) {
-        httpClient.getMovieDetailsBy(imdbId: imdbId) { result in
-            switch result {
-            case .success(let details):
+        httpClient.getMovieDetailsBy(imdbId: imdbId)
+            .sink { completion in
+                switch completion {
+                case .finished:
+                    print(#fileID, #function, #line, "request success")
+                case .failure(let error):
+                    print(error.localizedDescription)
+                    DispatchQueue.main.async {
+                        self.loadingState = .failed
+                    }
+                }
+            } receiveValue: { movieDetail in
                 DispatchQueue.main.async {
-                    self.movieDetail = details
+                    self.movieDetail = movieDetail
                     self.loadingState = .success
                 }
-            case .failure(let error):
-                print(error.localizedDescription)
-                DispatchQueue.main.async {
-                    self.loadingState = .failed
-                }
-                
             }
-        }
+            .store(in: &cancellables)
     }
     
     var title: String {

@@ -11,14 +11,14 @@ struct ContentView: View {
     var body: some View {
         Text("wewewe")
             .onAppear {
-                HTTPClient().getMoviesBy(search: "batman") { result in
-                    switch result {
-                    case .success(let movies):
-                        print(movies)
-                    case .failure(let error):
-                        print(error.localizedDescription)
-                    }
-                }
+//                HTTPClient().getMoviesBy(search: "batman") { result in
+//                    switch result {
+//                    case .success(let movies):
+//                        print(movies)
+//                    case .failure(let error):
+//                        print(error.localizedDescription)
+//                    }
+//                }
             }
     }
 }

@@ -7,11 +7,14 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 class MovieListViewModel: ViewModelBase {
     
     @Published var movies = [MovieViewModel]()
     var httpClient = HTTPClient()
+    
+    var cancellables = Set<AnyCancellable>()
     
     func searchByName(name: String) {
         
@@ -19,23 +22,26 @@ class MovieListViewModel: ViewModelBase {
 
         self.loadingState = .loading
         
-        httpClient.getMoviesBy(search: name.trimmedAndEscaped()) { result in
-            switch result {
-            case .success(let movies):
+        httpClient.getMoviesBy(search: name.trimmedAndEscaped())
+            .sink { completion in
+                switch completion {
+                case .finished:
+                    print(#fileID, #function, #line, "request success")
+                case .failure(let error):
+                    print(error.localizedDescription)
+                    DispatchQueue.main.async {
+                        self.loadingState = .failed
+                    }
+                }
+            } receiveValue: { movies in
                 if let movies = movies {
                     DispatchQueue.main.async {
                         self.movies = movies.map(MovieViewModel.init)
                         self.loadingState = .success
                     }
                 }
-            case .failure(let error):
-                print(error.localizedDescription)
-                DispatchQueue.main.async {
-                    self.loadingState = .failed
-                }
-                
             }
-        }
+            .store(in: &cancellables)
     }
 }
 
